@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estación de Consulta para Ingenieros</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Paleta Azul & Beige */
+            --primary-blue: #1b3a57; /* Azul Marino Profundo */
+            --secondary-blue: #2c5c85; /* Azul Acero */
+            --light-blue: #e8f1f8; /* Azul muy pálido */
+            --beige-bg: #f4f1ea; /* Beige papel */
+            --beige-card: #fdfbf7; /* Beige casi blanco */
+            --text-dark: #2c3e50;
+            --text-light: #5d6d7e;
+            --accent-gold: #c5a065; 
+            
+            --sidebar-width: 250px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--beige-bg);
+            color: var(--text-dark);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-blue);
+            color: var(--beige-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            z-index: 20;
+            flex-shrink: 0; /* Evitar que el sidebar se encoja */
+        }
+
+        .logo {
+            font-family: 'Merriweather', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo span {
+            color: var(--accent-gold);
+            font-size: 1.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: all 0.3s;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background-color: var(--accent-gold);
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        /* Iconos SVG Estilos */
+        svg.icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .footer-info {
+            font-size: 0.75rem;
+            opacity: 0.5;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--beige-bg);
+        }
+
+        /* View Containers */
+        .view-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.4s ease-in-out;
+            background-color: var(--beige-bg);
+            /* Quitamos padding y overflow global para manejarlo por vista */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view-section.active-view {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            z-index: 10;
+        }
+
+        /* === ESTILOS ESPECÍFICOS PARA CONSULTA (Scroll global) === */
+        #view-search {
+            overflow-y: auto; /* Scroll en toda la vista */
+            padding: 2rem 3rem;
+        }
+
+        .search-header {
+            max-width: 800px;
+            margin: 0 auto 2rem auto;
+            text-align: center;
+        }
+
+        .search-title {
+            font-family: 'Merriweather', serif;
+            color: var(--primary-blue);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .search-box-container {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin: 0 auto 2rem auto;
+            border-left: 5px solid var(--accent-gold);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: 'Roboto', sans-serif;
+            background-color: #fafafa;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--secondary-blue);
+            background-color: #fff;
+        }
+
+        button.btn-search {
+            background-color: var(--primary-blue);
+            color: #fff;
+            border: none;
+            padding: 0 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button.btn-search:hover {
+            background-color: var(--secondary-blue);
+        }
+
+        #search-feedback {
+            max-width: 800px;
+            margin: 0 auto 1rem auto;
+            font-style: italic;
+            color: var(--secondary-blue);
+            min-height: 1.5rem;
+        }
+
+        #results-area {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .result-card {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.4s ease-out;
+            border-top: 4px solid var(--secondary-blue);
+        }
+
+        .result-card h3 {
+            color: var(--primary-blue);
+            font-family: 'Merriweather', serif;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-card p {
+            line-height: 1.8;
+            color: #444;
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+        }
+
+        .source-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--secondary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            background-color: var(--light-blue);
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .source-link:hover {
+            background-color: #dbeaf9;
+        }
+
+        /* === ESTILOS ESPECÍFICOS PARA BITÁCORA (Scroll interno) === */
+        #view-notes {
+            overflow: hidden; /* IMPORTANTE: No scrollear la vista completa */
+            padding: 2rem 3rem;
+        }
+
+        .notes-container {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%; /* Ocupar todo el alto disponible */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Asegurar que nada se salga */
+        }
+
+        .notes-header-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #ddd;
+            flex-shrink: 0; /* No encoger el título */
+        }
+
+        .notes-title {
+            font-family: 'Merriweather', serif;
+            color: var(--primary-blue);
+            font-size: 2rem;
+        }
+
+        .note-input-area {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            flex-shrink: 0; /* No encoger el área de input */
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fafafa;
+            resize: none;
+            padding: 15px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            background-color: #fff;
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 3px rgba(44, 92, 133, 0.1);
+        }
+
+        .btn-save {
+            background-color: var(--accent-gold);
+            color: var(--primary-blue);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* GRID DE NOTAS (SCROLLABLE) */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            
+            /* Lógica de Scroll */
+            flex: 1; /* Ocupar todo el espacio restante */
+            overflow-y: auto; /* Scroll vertical SOLO aquí */
+            min-height: 0; /* Truco de Flexbox para permitir scroll */
+            padding-bottom: 2rem;
+            padding-right: 10px; /* Espacio para el scrollbar */
+            padding-top: 5px;
+        }
+
+        .note-item {
+            background-color: var(--beige-card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            border-top: 5px solid var(--secondary-blue);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            max-height: 400px; /* Evitar notas infinitamente largas */
+            overflow-y: auto;
+        }
+
+        .note-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .note-content {
+            font-size: 1rem;
+            color: #333;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+            flex: 1;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px dashed #ddd;
+            padding-top: 10px;
+            margin-top: auto;
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #c0392b;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-delete:hover {
+            opacity: 1;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-blue);
+        }
+
+        /* Loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo">
+            <!-- Icono Architecture SVG -->
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z"/></svg>
+            <span style="margin-left: 10px;">ING.CONSULTA</span>
+        </div>
+        
+        <nav class="nav-menu">
+            <div class="nav-item active" onclick="switchView('search')" id="nav-search">
+                <!-- Icono Search SVG -->
+                <svg class="icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                Consulta Técnica
+            </div>
+            <div class="nav-item" onclick="switchView('notes')" id="nav-notes">
+                <!-- Icono Edit Note SVG -->
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                Mi Bitácora
+            </div>
+        </nav>
+
+        <div class="footer-info">
+            v2.3 | SVG Icons Embedded
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- VISTA DE BÚSQUEDA (Scroll Normal) -->
+        <div id="view-search" class="view-section active-view">
+            <div class="search-header">
+                <h1 class="search-title">Base de Conocimiento</h1>
+                <p class="search-subtitle">Accede a definiciones técnicas y documentación en tiempo real.</p>
+            </div>
+
+            <div class="search-box-container">
+                <div class="input-group">
+                    <input type="text" id="search-input" placeholder="Ej: Ley de Ohm, Python, Vigas de acero..." autocomplete="off">
+                    <button class="btn-search" onclick="buscarInformacion()">
+                        <!-- Icono Search SVG -->
+                        <svg class="icon" viewBox="0 0 24 24" style="width:20px; height:20px; margin-right:5px;"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        Buscar
+                    </button>
+                </div>
+            </div>
+
+            <div id="search-feedback"></div> <!-- Mensajes naturales -->
+            <div class="loader" id="loader"></div>
+
+            <div id="results-area">
+                <!-- Resultados -->
+            </div>
+        </div>
+
+        <!-- VISTA DE BITÁCORA (Layout Fijo con Scroll Interno) -->
+        <div id="view-notes" class="view-section">
+            <div class="notes-container">
+                <div class="notes-header-block">
+                    <h1 class="notes-title">Bitácora de Proyecto</h1>
+                    <span style="color: var(--text-light);">Registro personal</span>
+                </div>
+
+                <div class="note-input-area">
+                    <textarea id="note-text" placeholder="Escribe aquí tus observaciones, cálculos rápidos o recordatorios de proyecto..."></textarea>
+                    <button class="btn-save" onclick="guardarNota()">
+                        <!-- Icono Save SVG -->
+                        <svg class="icon" viewBox="0 0 24 24" style="width:20px; height:20px; margin-right:5px;"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+                        Guardar Entrada
+                    </button>
+                </div>
+
+                <div class="notes-grid" id="notes-list">
+                    <!-- Notas -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- NAVEGACIÓN ---
+        function switchView(viewName) {
+            // Actualizar botones del sidebar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${viewName}`).classList.add('active');
+
+            // Actualizar vistas
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+            document.getElementById(`view-${viewName}`).classList.add('active-view');
+        }
+
+        // --- BÚSQUEDA ---
+        async function buscarInformacion() {
+            const input = document.getElementById('search-input');
+            const query = input.value.trim();
+            const resultsArea = document.getElementById('results-area');
+            const feedbackArea = document.getElementById('search-feedback');
+            const loader = document.getElementById('loader');
+
+            if (!query) return;
+
+            feedbackArea.textContent = `Entendido, consultando base de datos global sobre "${query}"...`;
+            resultsArea.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                const endpoint = `https://es.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=3&srsearch=${encodeURIComponent(query)}`;
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                loader.style.display = 'none';
+
+                if (data.query.search.length > 0) {
+                    feedbackArea.textContent = `He encontrado ${data.query.search.length} referencias técnicas relevantes para ti:`;
+                    data.query.search.forEach(result => {
+                        const card = document.createElement('div');
+                        card.className = 'result-card';
+                        const snippetClean = result.snippet.replace(/<[^>]*>?/gm, '');
+                        const url = `https://es.wikipedia.org/wiki/${encodeURIComponent(result.title)}`;
+
+                        card.innerHTML = `
+                            <h3>${result.title}</h3>
+                            <p>${snippetClean}...</p>
+                            <a href="${url}" target="_blank" class="source-link">
+                                <!-- Icono Description SVG -->
+                                <svg class="icon" viewBox="0 0 24 24" style="width:18px; height:18px; margin-right:5px;"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                                Consultar documento original
+                            </a>
+                        `;
+                        resultsArea.appendChild(card);
+                    });
+                } else {
+                    feedbackArea.textContent = "Mmm, no logré encontrar documentación exacta con esos términos.";
+                    resultsArea.innerHTML = `
+                        <div style="text-align:center; padding: 2rem; color: #666;">
+                            <!-- Icono Find in Page SVG (Opacity) -->
+                            <svg class="icon" viewBox="0 0 24 24" style="width:48px; height:48px; opacity:0.3;"><path d="M20 19.59V8l-6-6H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c.45 0 .85-.15 1.19-.4l-4.43-4.43c-.8.52-1.74.83-2.76.83-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5c0 1.02-.31 1.96-.83 2.75L20 19.59zM9 13c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3z"/></svg>
+                            <p>Intenta reformular tu consulta técnica.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                loader.style.display = 'none';
+                feedbackArea.textContent = "Hubo un problema de conexión con el servidor de datos.";
+            }
+        }
+
+        document.getElementById('search-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') buscarInformacion();
+        });
+
+        // --- BITÁCORA ---
+        let notas = JSON.parse(localStorage.getItem('ingenieria_notas_v2')) || [];
+        renderizarNotas();
+
+        function guardarNota() {
+            const textarea = document.getElementById('note-text');
+            const texto = textarea.value.trim();
+            if (!texto) return;
+
+            const nuevaNota = {
+                id: Date.now(),
+                texto: texto,
+                fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+
+            notas.unshift(nuevaNota);
+            localStorage.setItem('ingenieria_notas_v2', JSON.stringify(notas));
+            textarea.value = '';
+            renderizarNotas();
+            
+            const btn = document.querySelector('.btn-save');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" style="width:20px; height:20px; margin-right:5px;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Guardado';
+            setTimeout(() => btn.innerHTML = originalText, 1500);
+        }
+
+        function borrarNota(id) {
+            if(confirm("¿Estás seguro de eliminar esta entrada de la bitácora?")) {
+                notas = notas.filter(nota => nota.id !== id);
+                localStorage.setItem('ingenieria_notas_v2', JSON.stringify(notas));
+                renderizarNotas();
+            }
+        }
+
+        function renderizarNotas() {
+            const lista = document.getElementById('notes-list');
+            lista.innerHTML = '';
+
+            if (notas.length === 0) {
+                lista.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align:center; color:#888; margin-top:40px;">
+                        <!-- Icono Note Add SVG -->
+                        <svg class="icon" viewBox="0 0 24 24" style="width:48px; height:48px; opacity:0.2;"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zm-3-7V3.5L18.5 9H13z"/></svg>
+                        <p>La bitácora está vacía. Comienza agregando una nota arriba.</p>
+                    </div>`;
+                return;
+            }
+
+            notas.forEach(nota => {
+                const item = document.createElement('div');
+                item.className = 'note-item';
+                item.innerHTML = `
+                    <div class="note-content">${nota.texto}</div>
+                    <div class="note-footer">
+                        <span class="note-date">${nota.fecha}</span>
+                        <button class="btn-delete" onclick="borrarNota(${nota.id})" title="Eliminar entrada">
+                            <!-- Icono Delete SVG -->
+                            <svg class="icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </button>
+                    </div>
+                `;
+                lista.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
